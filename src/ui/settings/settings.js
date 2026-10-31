@@ -184,6 +184,7 @@ function render(items) {
           <span class="fmt-name">${esc(item.label)}</span>
           <span class="fmt-cat">${esc(CAT_LABEL[item.group] || 'ملف')}</span>
         </span>
+        ${item.desc ? `<span class="fmt-desc">${esc(item.desc)}</span>` : ''}
       </span>`;
 
     const input = label.querySelector('input');

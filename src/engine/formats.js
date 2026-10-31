@@ -19,13 +19,19 @@ const MEDIA_EXT = new Set([
 ]);
 
 /** الترتيب اللي بتظهر فيه الصيغ بالقائمة */
-const ORDER = ['pdf', 'docx', 'png', 'jpg', 'mp3', 'wav', 'zip', 'rar'];
+const ORDER = ['pdf', 'docx', 'png', 'jpg', 'enhance', 'mp3', 'wav', 'zip', 'rar'];
 
 const TARGETS = {
   pdf:  { id: 'pdf',  label: 'PDF',  group: 'docs',    desc: 'مستند PDF — صور أو وورد' },
   docx: { id: 'docx', label: 'DOC',  group: 'docs',    desc: 'مستند وورد (docx) قابل للتعديل' },
   png:  { id: 'png',  label: 'PNG',  group: 'images',  desc: 'صورة بدقة كاملة مع شفافية' },
   jpg:  { id: 'jpg',  label: 'JPG',  group: 'images',  desc: 'صورة JPG/JPEG مضغوطة وحجم أصغر' },
+  enhance: {
+    id: 'enhance',
+    label: 'تحسين',
+    group: 'images',
+    desc: 'تحسين جودة الصورة — تكبير 2× مع توضيح التفاصيل',
+  },
   zip:  { id: 'zip',  label: 'ZIP',  group: 'archive', desc: 'ضغط الملفات — أو فك ملف ZIP/RAR مضغوط' },
   rar:  { id: 'rar',  label: 'RAR',  group: 'archive', desc: 'ضغط RAR (بيحتاج WinRAR) — أو فك أرشيف مضغوط' },
   mp3:  { id: 'mp3',  label: 'MP3',  group: 'audio',   desc: 'صوت MP3 — من فيديو أو صوت' },
@@ -34,7 +40,7 @@ const TARGETS = {
 
 /** الصيغ المسموحة لكل نوع ملف */
 const KIND_TARGETS = {
-  image:   ['pdf', 'docx', 'png', 'jpg', 'zip', 'rar'],
+  image:   ['pdf', 'docx', 'png', 'jpg', 'enhance', 'zip', 'rar'],
   pdf:     ['png', 'jpg', 'docx', 'zip', 'rar'],
   doc:     ['pdf', 'zip', 'rar'],
   archive: ['zip', 'rar'],

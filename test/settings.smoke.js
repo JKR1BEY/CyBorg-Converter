@@ -87,7 +87,7 @@ function assert(cond, label) {
 
   assert(initial.heading === 'الإعدادات', `عنوان النافذة: ${initial.heading}`);
   assert(initial.subtitle === '', 'ما في كلام تحت كلمة الإعدادات');
-  assert(initial.descCount === 0, 'ما في أوصاف تحت أسماء الصيغ');
+  assert(initial.descCount === 8, `كل صيغة إلها وصف (${initial.descCount})`);
   assert(/لتنزيل أي فيديو/.test(initial.dlNote), `تلميح التنزيل: ${initial.dlNote}`);
   assert(initial.saveText.indexOf('حفظ الإعدادات') >= 0, `زر الحفظ: ${initial.saveText}`);
   assert(initial.refreshText === 'Refresh', `زر التحديث: ${initial.refreshText}`);

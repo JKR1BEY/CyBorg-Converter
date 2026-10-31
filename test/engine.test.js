@@ -146,7 +146,7 @@ async function exists(file) {
   });
   await check('صيغ صورة PNG', async () => {
     const ids = optionsFor([files.a]).map((o) => o.id);
-    expect(ids.join(',') === 'pdf,docx,jpg,zip,rar', `طلع: ${ids.join(',')}`);
+    expect(ids.join(',') === 'pdf,docx,jpg,enhance,zip,rar', `طلع: ${ids.join(',')}`);
   });
   await check('صيغ فيديو', async () => {
     const ids = optionsFor([files.clip]).map((o) => o.id);
@@ -177,9 +177,15 @@ async function exists(file) {
     expect(ids.join(',') === 'pdf,mp3,wav', `طلع: ${ids.join(',')}`);
   });
   await check('إعدادات فاضية أو تالفة = كل الصيغ', async () => {
-    expect(effectiveWheelFormats([]).length === 8, 'الفاضي لازم يرجع 8');
-    expect(effectiveWheelFormats(null).length === 8, 'التالف لازم يرجع 8');
-    expect(effectiveWheelFormats(undefined).length === 8, 'غير الموجود لازم يرجع 8');
+    expect(effectiveWheelFormats([]).length === 9, 'الفاضي لازم يرجع 9');
+    expect(effectiveWheelFormats(null).length === 9, 'التالف لازم يرجع 9');
+    expect(effectiveWheelFormats(undefined).length === 9, 'غير الموجود لازم يرجع 9');
+  });
+  await check('خيار تحسين الصورة موجود بالدولاب', async () => {
+    const target = wheelTargetsFor(null).find((t) => t.id === 'enhance');
+    expect(!!target, 'تحسين لازم يكون ضمن الصيغ');
+    expect(target.group === 'images', 'التحسين لازم يكون تحت الصور');
+    expect(normalizeWheelFormats(['enhance', 'jpg']).join(',') === 'jpg,enhance', 'ترتيب التحسين');
   });
   await check('صيغ دولاب السحب حسب الاختيار', async () => {
     const labels = wheelTargetsFor(['zip', 'pdf']).map((o) => o.label);
@@ -206,6 +212,39 @@ async function exists(file) {
     const { outputs, errors } = await convert([files.c], 'jpg');
     expect(!errors.length, errors[0] && errors[0].message);
     console.log(`     ${await meta(outputs[0])}`);
+  });
+
+  console.log('تحسين جودة الصور:');
+  await check('PNG صغيرة → تحسين 2× (نفس الصيغة)', async () => {
+    const before = await sharp(files.a).metadata();
+    const { outputs, errors } = await convert([files.a], 'enhance', { enhanceScale: 2 });
+    expect(!errors.length, errors[0] && errors[0].message);
+    expect(outputs.length === 1, 'لازم ناتج واحد');
+    expect(path.basename(outputs[0]).includes('محسّنة'), `اسم الناتج: ${path.basename(outputs[0])}`);
+    const after = await sharp(outputs[0]).metadata();
+    expect(after.width === before.width * 2 && after.height === before.height * 2,
+      `الأبعاد ${after.width}×${after.height} بدل ${before.width * 2}×${before.height * 2}`);
+    expect(after.format === 'png', `الصيغة ${after.format}`);
+    console.log(`     ${before.width}×${before.height} → ${after.width}×${after.height} (${await meta(outputs[0])})`);
+  });
+  await check('JPG → تحسين يحافظ على JPG', async () => {
+    const { outputs, errors } = await convert([files.b], 'enhance', { enhanceScale: 2 });
+    expect(!errors.length, errors[0] && errors[0].message);
+    const after = await sharp(outputs[0]).metadata();
+    expect(after.format === 'jpeg', `الصيغة ${after.format}`);
+    expect(path.extname(outputs[0]) === '.jpg', `الامتداد ${path.extname(outputs[0])}`);
+    console.log(`     ${await meta(outputs[0])}`);
+  });
+  await check('تحسين أكتر من صورة → ملفات بمجلد الحفظ', async () => {
+    const dir = path.join(OUT, 'enhance-multi');
+    const { outputs, errors } = await convert([files.a, files.b], 'enhance', { outDir: dir, enhanceScale: 2 });
+    expect(!errors.length, errors[0] && errors[0].message);
+    expect(outputs.length === 2, `عدد النواتج ${outputs.length}`);
+    const names = outputs.map((p) => path.basename(p));
+    expect(new Set(names).size === 2, `أسماء مكررة: ${names.join(', ')}`);
+    const widths = await Promise.all(outputs.map(async (p) => (await sharp(p).metadata()).width));
+    expect(widths.every((w) => w > 0), 'أبعاد غير صالحة');
+    await fs.rm(dir, { recursive: true, force: true });
   });
 
   console.log('صور ← PDF:');

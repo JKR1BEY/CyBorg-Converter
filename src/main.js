@@ -102,13 +102,24 @@ const fileProbe = new FileProbe({
 /* ------------------------------- الإعدادات ------------------------------- */
 
 const prefsFile = () => path.join(app.getPath('userData'), 'prefs.json');
+
+/**
+ * إصدار قائمة الصيغ — بنزيده كل ما نضيف صيغة جديدة.
+ * أي صيغة انضافت بعد آخر مرة المستخدم حفظ إعداداته بتنضاف للدولاب تلقائياً،
+ * ويقدر يشيلها من نافذة الإعدادات.
+ */
+const FORMATS_VERSION = 2;
+const NEW_IN_FORMATS_VERSION = ['enhance'];
+
 let prefs = {
   quality: 90,
   pageSize: 'image',
   pdfScale: 2,
+  enhanceScale: 2,
   seenIntro: false,
   lastVersion: '',
   wheelFormats: null,
+  formatsVersion: 0,
   downloadDir: '',
 };
 
@@ -117,6 +128,21 @@ function loadPrefs() {
     prefs = { ...prefs, ...JSON.parse(fs.readFileSync(prefsFile(), 'utf8')) };
   } catch (_) {
     /* أول تشغيل */
+  }
+  migrateWheelFormats();
+}
+
+/** نضيف الصيغ الجديدة لإعدادات قديمة عشان ما تختفي من الدولاب */
+function migrateWheelFormats() {
+  const isOld = prefs.formatsVersion !== FORMATS_VERSION;
+  if (isOld && Array.isArray(prefs.wheelFormats)) {
+    const set = new Set(prefs.wheelFormats);
+    for (const id of NEW_IN_FORMATS_VERSION) if (TARGETS[id]) set.add(id);
+    prefs.wheelFormats = ORDER.filter((id) => set.has(id));
+  }
+  if (isOld) {
+    prefs.formatsVersion = FORMATS_VERSION;
+    savePrefs();
   }
 }
 
@@ -183,9 +209,13 @@ function openSettings() {
     return;
   }
 
+  // النافذة بتكبر حسب عدد الصيغ — بس ما تتجاوز مساحة الشاشة المتاحة
+  const workArea = screen.getPrimaryDisplay().workAreaSize;
+  const settingsHeight = Math.min(840, Math.max(560, workArea.height - 60));
+
   settingsWin = new BrowserWindow({
     width: 640,
-    height: 640,
+    height: settingsHeight,
     minWidth: 560,
     minHeight: 560,
     show: false,
@@ -396,7 +426,19 @@ function defaultSaveBase(files, targetId) {
   if ((targetId === 'zip' || targetId === 'rar') && files.length > 1) {
     return path.basename(path.dirname(files[0])) || 'ملفات مضغوطة';
   }
-  return path.basename(files[0], path.extname(files[0])) || 'ملف';
+  const base = path.basename(files[0], path.extname(files[0])) || 'ملف';
+  // التحسين بيحافظ على الصورة الأصلية — منضيف لاحقة عشان ما نلخبط الملفين
+  if (targetId === 'enhance') return `${base} - محسّنة`;
+  return base;
+}
+
+/** امتداد الناتج — التحسين بيحافظ على صيغة الصورة الأصلية */
+function targetExtFor(files, targetId) {
+  if (targetId !== 'enhance') return TARGET_EXT[targetId] || '';
+  const ext = path.extname((files && files[0]) || '').toLowerCase();
+  if (ext === '.jpg' || ext === '.jpeg' || ext === '.jpe' || ext === '.jfif') return '.jpg';
+  if (ext === '.webp') return '.webp';
+  return '.png';
 }
 
 /**
@@ -470,7 +512,7 @@ async function showNativeDialog(kind, options) {
 async function askDestination(files, targetId) {
   if (SKIP_SAVE_DIALOG) return {};
 
-  const ext = TARGET_EXT[targetId] || '';
+  const ext = targetExtFor(files, targetId);
   const label = (TARGETS[targetId] || {}).label || targetId;
   const sourceDir = path.dirname(files[0]);
   const extracting = isArchiveExtraction(files, targetId);
@@ -563,6 +605,7 @@ async function runJob(files, targetId) {
       quality: prefs.quality,
       pageSize: prefs.pageSize,
       pdfScale: prefs.pdfScale,
+      enhanceScale: prefs.enhanceScale,
       ...dest,
       htmlToPdf: renderHtmlToPdf,
       onProgress: (p) => sendToOverlay('job:progress', { ...p, target: targetId }),
@@ -1288,6 +1331,7 @@ function registerIpc() {
       return { ok: false, error: 'لازم تختار صيغة وحدة على الأقل للدولاب.' };
     }
     prefs.wheelFormats = list;
+    prefs.formatsVersion = FORMATS_VERSION;
     savePrefs();
     diag('settings-save', { formats: list });
     testLog('settings-save', { formats: list });

@@ -167,7 +167,7 @@ function readPrefs() {
   fs.mkdirSync(USER_DATA, { recursive: true });
   fs.writeFileSync(
     path.join(USER_DATA, 'prefs.json'),
-    JSON.stringify({ wheelFormats: ['pdf', 'zip'], seenIntro: true }, null, 2)
+    JSON.stringify({ wheelFormats: ['pdf', 'zip'], formatsVersion: 2, seenIntro: true }, null, 2)
   );
 
   let app1 = null;
@@ -178,7 +178,7 @@ function readPrefs() {
     assert(chips1.join(',') === 'pdf,zip', `الدولاب فيه الصيغ المختارة بس (${chips1.join(',')})`);
 
     const info = await app1.cdp.eval(`window.api.getWheelSettings()`);
-    assert(info && info.formats.length === 8, `الواجهة بتعرف 8 صيغ (${info && info.formats.length})`);
+    assert(info && info.formats.length === 9, `الواجهة بتعرف 9 صيغ (${info && info.formats.length})`);
     assert(info && info.enabled.join(',') === 'pdf,zip', `الواجهة بتقرأ المختار (${info && info.enabled.join(',')})`);
 
     const bad = await app1.cdp.eval(`window.api.saveWheelFormats([])`);
@@ -199,7 +199,7 @@ function readPrefs() {
       scrollHeight: document.documentElement.scrollHeight,
       footerBottom: Math.round(document.querySelector('.foot').getBoundingClientRect().bottom),
     }))()`);
-    assert(settingsUi.cards === 8, `نافذة الخيارات فيها 8 صيغ (${settingsUi.cards})`);
+    assert(settingsUi.cards === 9, `نافذة الخيارات فيها 9 صيغ (${settingsUi.cards})`);
     assert(settingsUi.checked.join(',') === 'pdf,zip', `النافذة بتعرض المختار (${settingsUi.checked.join(',')})`);
     assert(
       settingsUi.scrollHeight <= settingsUi.innerHeight + 1,

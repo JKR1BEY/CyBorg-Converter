@@ -212,7 +212,7 @@ const state = `(() => ({
     assert(showEvents.length === 1 && showEvents[0].mode === 'drop', 'الطبقة انفتحت مرة وحدة بوضع السحب');
     assert(!!shown, 'الدولاب طلع مع Shift أثناء السحب');
     if (shown) {
-      assert(shown.chips.length === 8, `8 صيغ بالدولاب (${shown.chips.join(', ')})`);
+      assert(shown.chips.length === 9, `9 صيغ بالدولاب (${shown.chips.join(', ')})`);
       assert(shown.hubTitle === 'أفلت ملفاً', `نص الوسط: ${shown.hubTitle}`);
       assert(shown.hubSub.indexOf('الصيغة') >= 0, `تلميح الوسط: ${shown.hubSub}`);
     }
@@ -266,7 +266,7 @@ const state = `(() => ({
     inject('shiftdown');
     const reopened = await waitFor(async () => {
       const v = await cdp.eval(state);
-      return v.dropMode && v.chips.length === 8 ? v : null;
+      return v.dropMode && v.chips.length === 9 ? v : null;
     }, 4000);
     assert(!!reopened, 'ضغط Shift مرة تانية رجّع فتح الدولاب');
     assert(events('show').length === 2, `الطبقة انفتحت مرتين (${events('show').length})`);
@@ -337,6 +337,59 @@ const state = `(() => ({
       assert(st.size > 500, `حجمه ${(st.size / 1024).toFixed(0)}KB`);
       const m = await sharp(path.join(OUT, created[0])).metadata();
       assert(m.width === 400 && m.height === 260, `أبعاده ${m.width}x${m.height}`);
+    }
+
+    cdp.close();
+    cdp = null;
+  } finally {
+    try { if (cdp) cdp.close(); } catch (_) {}
+    try { child.kill(); } catch (_) {}
+    await sleep(800);
+    killApp();
+    await waitPortFree();
+  }
+
+  /* ===================== المرحلة 2ب: تحسين جودة الصورة ===================== */
+  console.log('\n— تحسين جودة الصورة من الدولاب —');
+
+  const beforeEnhance = new Set(fs.readdirSync(OUT));
+  fs.rmSync(LOG, { force: true });
+  child = launch({ CONVERTER_TEST_FILES: src, CONVERTER_TEST_LOG: LOG });
+  cdp = null;
+  try {
+    const t = await findTarget('/ui/radial/index.html', 60000);
+    assert(!!t, 'التطبيق فتح (تحسين الصورة)');
+    if (!t) throw new Error('ما فتحت الطبقة');
+
+    cdp = connect(t.webSocketDebuggerUrl);
+    await cdp.ready;
+
+    const menu = await waitFor(async () => {
+      const v = await cdp.eval(state);
+      return v.chips.length && !v.dropMode ? v : null;
+    }, 8000);
+
+    assert(!!menu, 'دولاب الاختيار ظهر لصورة التحسين');
+    const hasEnhance = !!(menu && menu.chips.indexOf('enhance') >= 0);
+    assert(hasEnhance, `خيار التحسين موجود (${menu ? menu.chips.join(', ') : '-'})`);
+    if (hasEnhance) {
+      await cdp.eval(`document.querySelector('.chip[data-id="enhance"]').click(); true`);
+
+      const title = await waitFor(async () => {
+        const v = await cdp.eval(`document.getElementById('cardTitle').textContent`);
+        return v && (v.indexOf('تم التحويل') >= 0 || v.indexOf('ما قدرنا') >= 0) ? v : null;
+      }, 60000);
+      assert(!!title && title.indexOf('تم التحويل') >= 0, `نتيجة التحسين: ${title}`);
+      assert(events('job').some((e) => e.target === 'enhance'), 'المين استلم طلب التحسين');
+
+      await sleep(700);
+      const created = fs.readdirSync(OUT).filter((f) => !beforeEnhance.has(f) && /\.png$/i.test(f));
+      assert(created.length > 0, `ملف التحسين انكتب: ${created.join(', ')}`);
+      if (created.length) {
+        const m = await sharp(path.join(OUT, created[0])).metadata();
+        assert(m.width === 800 && m.height === 520, `أبعاد التحسين ${m.width}x${m.height}`);
+        assert(fs.statSync(path.join(OUT, created[0])).size > 1000, 'حجم ملف التحسين معقول');
+      }
     }
 
     cdp.close();

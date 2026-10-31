@@ -3,7 +3,7 @@
 const fs = require('fs/promises');
 const path = require('path');
 const { kindOf, extOf, optionsFor, isArchiveExtraction, TARGETS, ORDER, KIND_TARGETS } = require('./formats');
-const { encodeImage } = require('./images');
+const { encodeImage, enhanceImage } = require('./images');
 const { imagesToPdf, pdfToImages, pdfTextPages } = require('./pdf');
 const { imagesToDocx, pdfTextToDocx, docxToHtml } = require('./docx');
 const { zipPaths } = require('./zip');
@@ -17,6 +17,7 @@ const TARGET_EXT = {
   docx: '.docx',
   png: '.png',
   jpg: '.jpg',
+  enhance: '.png',
   zip: '.zip',
   rar: '.rar',
   mp3: '.mp3',
@@ -200,15 +201,29 @@ async function convert(files, targetId, opts = {}) {
       if (!allowed) throw new Error('صيغة الملف غير مدعومة لهذا التحويل');
 
       if (kind === 'image') {
-        report({ file, note: 'جارٍ التحويل…' });
-        const input = await fs.readFile(file);
-        let out;
-        if (targetId === 'docx') out = await imagesToDocx([input]);
-        else if (targetId === 'pdf') out = await imagesToPdf([input], { quality: opts.quality, pageSize: opts.pageSize || 'image' });
-        else out = await encodeImage(input, targetId, { quality: opts.quality });
-        const outPath = destFor(path.dirname(file), baseName(file), TARGET_EXT[targetId]);
-        await fs.writeFile(outPath, out);
-        outputs.push(outPath);
+        if (targetId === 'enhance') {
+          report({ file, note: 'تحسين جودة الصورة…' });
+          const input = await fs.readFile(file);
+          const enhanced = await enhanceImage(input, {
+            scale: opts.enhanceScale,
+            quality: opts.quality,
+            denoise: opts.enhanceDenoise,
+          });
+          const outPath = destFor(path.dirname(file), baseName(file) + ' - محسّنة', enhanced.ext);
+          await fs.writeFile(outPath, enhanced.buffer);
+          outputs.push(outPath);
+          report({ file, note: `تحسين: ${enhanced.width}×${enhanced.height}` });
+        } else {
+          report({ file, note: 'جارٍ التحويل…' });
+          const input = await fs.readFile(file);
+          let out;
+          if (targetId === 'docx') out = await imagesToDocx([input]);
+          else if (targetId === 'pdf') out = await imagesToPdf([input], { quality: opts.quality, pageSize: opts.pageSize || 'image' });
+          else out = await encodeImage(input, targetId, { quality: opts.quality });
+          const outPath = destFor(path.dirname(file), baseName(file), TARGET_EXT[targetId]);
+          await fs.writeFile(outPath, out);
+          outputs.push(outPath);
+        }
       } else if (kind === 'pdf') {
         const input = await fs.readFile(file);
         if (targetId === 'docx') {
