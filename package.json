@@ -1,0 +1,109 @@
+{
+  "name": "tasweeq-converter",
+  "productName": "محوّل الملفات",
+  "version": "0.3.0",
+  "description": "محوّل ملفات محلي لويندوز — صور و PDF ووورد وZIP/RAR وصوت",
+  "main": "src/main.js",
+  "author": "Muaz",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "icons": "node scripts/make-icon.js",
+    "test:engine": "node test/engine.test.js",
+    "test:ui": "electron test/ui.smoke.js",
+    "test:settings": "electron test/settings.smoke.js",
+    "test:docx": "electron test/docx-pdf.js",
+    "test:download": "node test/download.test.js",
+    "test:clipboard": "node test/clipboard.test.js",
+    "test:clipboard:electron": "electron test/clipboard-electron.test.js --disable-gpu --disable-software-rasterizer",
+    "test:e2e": "node test/e2e.js",
+    "test:e2e:drop": "node test/e2e-drop.js",
+    "test:e2e:explorer": "node test/e2e-explorer.js",
+    "test:e2e:settings": "node test/e2e-settings.js",
+    "test:e2e:download": "node test/download-e2e.js",
+    "test:filecheck": "node test/filecheck.js",
+    "dist": "electron-builder --win"
+  },
+  "dependencies": {
+    "@napi-rs/canvas": "^1.0.13",
+    "electron-updater": "^6.8.11",
+    "ffmpeg-static": "^5.3.0",
+    "jszip": "^3.10.2",
+    "mammoth": "^1.13.0",
+    "node-unrar-js": "^2.0.2",
+    "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "^6.4.299",
+    "sharp": "^0.35.5",
+    "uiohook-napi": "^1.5.5"
+  },
+  "devDependencies": {
+    "electron": "^45.0.0",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.muaz.fileconverter",
+    "productName": "محوّل الملفات",
+    "asar": false,
+    "npmRebuild": false,
+    "directories": {
+      "output": "dist"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "JKR1BEY",
+      "repo": "CyBorg-Converter"
+    },
+    "files": [
+      "src/**/*",
+      "assets/**/*",
+      "package.json",
+      "!test/**",
+      "!scripts/**",
+      "!dist/**"
+    ],
+    "win": {
+      "icon": "assets/icon.png",
+      "requestedExecutionLevel": "asInvoker",
+      "artifactName": "FileConverter-NoInstall-${version}.${ext}",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "selectPerMachineByDefault": false,
+      "allowElevation": false,
+      "packElevateHelper": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "محوّل الملفات",
+      "artifactName": "FileConverter-Setup-${version}.exe",
+      "deleteAppDataOnUninstall": false
+    },
+    "portable": {
+      "requestExecutionLevel": "user",
+      "unpackDirName": "FileConverterPortable",
+      "artifactName": "FileConverter-Portable-${version}.exe"
+    }
+  }
+}

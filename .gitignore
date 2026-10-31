@@ -1,0 +1,19 @@
+# اعتماديات ومخرجات البناء
+node_modules/
+dist/
+release-0.3.0/
+all/
+all.zip
+
+# مخرجات الاختبارات
+test/out/
+
+# ملفات النظام والمحرر
+Thumbs.db
+Desktop.ini
+.DS_Store
+*.log
+npm-debug.log*
+
+# متغيرات بيئة محلية
+.env

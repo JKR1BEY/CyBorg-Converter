@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;" />
+  <title>اختر الصيغة</title>
+  <link rel="stylesheet" href="radial.css" />
+</head>
+<body>
+  <div class="veil" id="veil"></div>
+
+  <div class="menu" id="menu" hidden>
+    <svg class="ring" id="ring" aria-hidden="true">
+      <circle id="ringCircle" fill="none" stroke="rgba(255,255,255,0.16)" stroke-width="1.5"
+              stroke-dasharray="2 8" stroke-linecap="round" />
+    </svg>
+    <div class="hub" id="hub">
+      <div class="hub-icon" id="hubIcon"></div>
+      <div class="hub-title" id="hubTitle">ملف</div>
+      <div class="hub-sub" id="hubSub">اختر الصيغة</div>
+    </div>
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <div class="hint" id="hint" hidden><kbd>Esc</kbd> للإلغاء</div>
+
+  <div class="card" id="card" hidden>
+    <div class="card-top">
+      <div class="mark" id="mark"></div>
+      <div class="card-text">
+        <div class="card-title" id="cardTitle"></div>
+        <div class="card-file" id="cardFile"></div>
+        <div class="card-meta" id="cardMeta" hidden></div>
+      </div>
+    </div>
+    <div class="bar" id="bar"><i id="barFill" style="width:0%"></i></div>
+    <div class="list" id="list" hidden></div>
+    <div class="card-actions" id="cardActions"></div>
+  </div>
+
+  <script src="radial.js"></script>
+</body>
+</html>

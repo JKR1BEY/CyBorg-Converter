@@ -1,0 +1,433 @@
+* { box-sizing: border-box; }
+
+html,
+body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  overflow: hidden;
+  color: #fff;
+  font-family: "Segoe UI", "Tahoma", system-ui, sans-serif;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: default;
+}
+
+/* -------------------------------- الخلفية -------------------------------- */
+
+.veil {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(520px circle at var(--cx, 50%) var(--cy, 50%), rgba(105, 120, 255, 0.12), transparent 65%),
+    rgba(7, 9, 15, 0.44);
+  backdrop-filter: blur(10px) saturate(0.9);
+  -webkit-backdrop-filter: blur(10px) saturate(0.9);
+  animation: veilIn 110ms ease both;
+}
+
+@keyframes veilIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* -------------------------------- المنيو -------------------------------- */
+
+.menu {
+  position: absolute;
+  width: 0;
+  height: 0;
+  z-index: 2;
+}
+
+.ring {
+  position: absolute;
+  pointer-events: none;
+  overflow: visible;
+  opacity: 0;
+  animation: fadeIn 240ms 40ms ease forwards;
+}
+
+.hub {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate(-50%, -50%);
+  width: 156px;
+  height: 156px;
+  padding: 0 14px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  background: radial-gradient(circle at 50% 26%, rgba(48, 53, 72, 0.96), rgba(15, 17, 25, 0.97) 72%);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  box-shadow:
+    0 26px 60px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  animation: hubIn 140ms cubic-bezier(0.2, 0.9, 0.3, 1.15) both;
+  z-index: 3;
+}
+
+@keyframes hubIn {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.86); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+.hub-icon {
+  display: grid;
+  place-items: center;
+  height: 34px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.hub-title {
+  font-size: 12.5px;
+  font-weight: 600;
+  max-width: 124px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-align: center;
+  direction: ltr;
+}
+
+.hub-sub {
+  font-size: 10.5px;
+  color: rgba(255, 255, 255, 0.52);
+  max-width: 126px;
+  text-align: center;
+  line-height: 1.35;
+  min-height: 14px;
+}
+
+/* -------------------------------- الأقراص -------------------------------- */
+
+.chips {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.chip {
+  --s: 1;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 86px;
+  height: 86px;
+  transform: translate(-50%, -50%) translate(var(--x), var(--y)) scale(var(--s));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  border-radius: 27px;
+  background: linear-gradient(165deg, rgba(44, 49, 68, 0.94), rgba(19, 21, 31, 0.95));
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow:
+    0 14px 30px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.13);
+  color: #fff;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+  animation: pop 170ms cubic-bezier(0.2, 0.9, 0.3, 1.25) backwards;
+  animation-delay: var(--d, 0ms);
+  transition: box-shadow 150ms ease, border-color 150ms ease, background 150ms ease;
+  will-change: transform;
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) translate(var(--x), var(--y)) scale(0.45);
+  }
+}
+
+.chip .fmt {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  direction: ltr;
+}
+
+.chip .cat {
+  font-size: 9.5px;
+  color: rgba(255, 255, 255, 0.55);
+  transition: color 120ms ease;
+}
+
+.chip .num {
+  position: absolute;
+  top: 7px;
+  left: 7px;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 9px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.chip:hover,
+.chip:focus-visible,
+.chip.is-hover {
+  --s: 1.09;
+  border-color: rgba(140, 160, 255, 0.85);
+  background: linear-gradient(165deg, rgba(70, 90, 190, 0.95), rgba(48, 40, 110, 0.96));
+  box-shadow:
+    0 0 0 4px rgba(120, 140, 255, 0.18),
+    0 20px 44px rgba(60, 70, 200, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+.chip:hover .cat,
+.chip:focus-visible .cat,
+.chip.is-hover .cat { color: rgba(255, 255, 255, 0.8); }
+
+.chip:hover .num,
+.chip.is-hover .num { color: #fff; background: rgba(255, 255, 255, 0.2); }
+
+.chip .fmt { pointer-events: none; }
+
+/* -------------------------------- التلميح -------------------------------- */
+
+.hint {
+  position: fixed;
+  bottom: 26px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.72);
+  background: rgba(16, 18, 27, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  animation: fadeIn 180ms 80ms ease both;
+  z-index: 2;
+}
+
+kbd {
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: rgba(255, 255, 255, 0.85);
+  direction: ltr;
+}
+
+/* -------------------------------- البطاقة -------------------------------- */
+
+.card {
+  position: absolute;
+  width: 382px;
+  transform: translate(-50%, -50%);
+  padding: 20px 20px 16px;
+  border-radius: 22px;
+  background: linear-gradient(168deg, rgba(34, 38, 54, 0.97), rgba(15, 17, 25, 0.98));
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  box-shadow:
+    0 34px 80px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  z-index: 5;
+  animation: cardIn 200ms cubic-bezier(0.2, 0.9, 0.3, 1.1) both;
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.94); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+.card-top {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  min-height: 44px;
+}
+
+.mark {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: rgba(120, 140, 255, 0.14);
+  border: 1px solid rgba(120, 140, 255, 0.28);
+  color: #aebcff;
+}
+
+.mark.ok { background: rgba(52, 211, 153, 0.14); border-color: rgba(52, 211, 153, 0.3); color: #4ade80; }
+.mark.err { background: rgba(248, 113, 113, 0.14); border-color: rgba(248, 113, 113, 0.3); color: #f87171; }
+
+.card-text { min-width: 0; flex: 1; }
+
+.card-title {
+  font-size: 14.5px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.card-file {
+  margin-top: 2px;
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.5);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  direction: ltr;
+  text-align: right;
+}
+
+.card-meta {
+  margin-top: 1px;
+  font-size: 11px;
+  color: rgba(120, 200, 255, 0.8);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  direction: ltr;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.bar {
+  margin-top: 15px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.09);
+  overflow: hidden;
+}
+
+.bar i {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #6191ff, #a06bff);
+  transition: width 240ms ease;
+}
+
+.list {
+  margin: 13px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  max-height: 108px;
+  overflow: hidden;
+}
+
+.list li {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.72);
+  padding: 6px 9px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.list li .name {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  direction: ltr;
+  flex: 1;
+}
+
+.list li .tag {
+  font-size: 9.5px;
+  color: rgba(255, 255, 255, 0.45);
+  flex: 0 0 auto;
+}
+
+.list li.warn { color: #fbbf24; background: rgba(251, 191, 36, 0.08); border-color: rgba(251, 191, 36, 0.18); }
+
+.card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 15px;
+  justify-content: flex-start;
+}
+
+.btn {
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 9px 16px;
+  border-radius: 11px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  cursor: pointer;
+  transition: background 130ms ease, border-color 130ms ease, transform 90ms ease;
+}
+
+.btn:hover { background: rgba(255, 255, 255, 0.14); }
+.btn:active { transform: scale(0.97); }
+
+.btn.primary {
+  background: linear-gradient(140deg, #6191ff, #9a5cff);
+  border-color: transparent;
+  box-shadow: 0 8px 22px rgba(96, 110, 255, 0.35);
+}
+
+.btn.primary:hover { filter: brightness(1.08); }
+
+/* ------------------------------ وضع السحب ------------------------------ */
+
+body.drop-mode .chip { cursor: copy; }
+body.drop-mode .chip .num { display: none; }
+
+body.drop-mode .hub {
+  box-shadow:
+    0 0 0 1px rgba(140, 160, 255, 0.35),
+    0 0 0 10px rgba(120, 140, 255, 0.08),
+    0 26px 60px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  animation: hubIn 220ms cubic-bezier(0.2, 0.9, 0.3, 1.15) both, hubGlow 2.2s 300ms ease-in-out infinite;
+}
+
+@keyframes hubGlow {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(140, 160, 255, 0.3), 0 0 0 10px rgba(120, 140, 255, 0.05), 0 26px 60px rgba(0, 0, 0, 0.55); }
+  50% { box-shadow: 0 0 0 1px rgba(140, 160, 255, 0.55), 0 0 0 18px rgba(120, 140, 255, 0.1), 0 26px 60px rgba(0, 0, 0, 0.55); }
+}
+
+/* -------------------------------- الحركات -------------------------------- */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* مؤشر تحميل دائري داخل البطاقة */
+.spin {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2.5px solid rgba(255, 255, 255, 0.18);
+  border-top-color: #8ba4ff;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

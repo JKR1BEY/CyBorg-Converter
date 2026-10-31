@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;" />
+  <title>الإعدادات — محوّل الملفات</title>
+  <link rel="stylesheet" href="settings.css" />
+</head>
+<body>
+  <div class="shell">
+    <header class="head">
+      <div class="badge" aria-hidden="true"></div>
+      <div class="head-text">
+        <h1>الإعدادات</h1>
+      </div>
+    </header>
+
+    <section class="panel" aria-label="صيغ الدولاب">
+      <div class="panel-top">
+        <span class="panel-title">الصيغ المتاحة</span>
+        <span class="counter" id="counter">…</span>
+      </div>
+      <div class="grid" id="grid"></div>
+    </section>
+
+    <p class="note">
+      علّم على الصيغة لإضافتها، وشيل العلامة لتحذفها من الدولاب.
+      لازم تضل صيغة وحدة على الأقل.
+    </p>
+
+    <p class="note dl">
+      لتنزيل أي فيديو من أي منصة اضغط على <bdi>Ctrl+Shift+V</bdi>
+    </p>
+
+    <section class="panel update-panel" aria-label="تحديث البرنامج">
+      <div class="panel-top">
+        <span class="panel-title">الإصدار</span>
+        <span class="counter" id="appVersion">…</span>
+      </div>
+      <div class="update-body">
+        <div class="update-text">
+          <div class="update-status" id="updateStatus">اضغط «فحص التحديثات» للتأكد إنك على آخر إصدار.</div>
+          <div class="update-notes" id="updateNotes" hidden></div>
+        </div>
+        <button type="button" class="btn" id="updateBtn">فحص التحديثات</button>
+      </div>
+      <div class="update-bar" id="updateBar" hidden><i id="updateFill"></i></div>
+    </section>
+
+    <div class="error" id="error" role="alert" hidden></div>
+
+    <footer class="foot">
+      <div class="quick">
+        <button type="button" class="btn ghost" id="refresh" title="إعادة قراءة الإعدادات">Refresh</button>
+        <button type="button" class="btn ghost" id="selectAll">تحديد الكل</button>
+        <button type="button" class="btn ghost" id="clearAll">مسح الكل</button>
+      </div>
+      <div class="actions">
+        <button type="button" class="btn" id="cancel">إلغاء</button>
+        <button type="button" class="btn primary" id="save">حفظ الإعدادات</button>
+      </div>
+    </footer>
+  </div>
+
+  <script src="settings.js"></script>
+</body>
+</html>
