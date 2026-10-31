@@ -1,7 +1,7 @@
 {
   "name": "tasweeq-converter",
   "productName": "محوّل الملفات",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "محوّل ملفات محلي لويندوز — صور و PDF ووورد وZIP/RAR وصوت",
   "main": "src/main.js",
   "author": "Muaz",
